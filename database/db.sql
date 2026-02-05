@@ -118,4 +118,5 @@ SET SQL_SAFE_UPDATES = 1;
 
 SELECT * FROM `bookings`;
 
-
+ALTER TABLE `bookings`
+MODIFY `status` ENUM('confirmed','cancelled','completed') NOT NULL DEFAULT 'confirmed';
