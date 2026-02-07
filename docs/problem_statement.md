@@ -1,53 +1,112 @@
 # Smart Campus Resource Manager
 
 ## Problem Statement
-Universities face challenges in efficiently managing shared resources such as classrooms, laboratories, and equipment. The goal is to build a **Smart Campus Resource Manager** that enables administrators to allocate, track, and control resource usage while preventing booking conflicts and maintaining data integrity.
+Educational institutions rely on shared infrastructure such as classrooms, laboratories, halls, and equipment. Traditional booking systems either allow unrestricted time selection or require manual approval, leading to scheduling conflicts, unrealistic reservations, unfair priority allocation, and poor visibility of real availability.
 
-This project focuses on **backend logic, database design, and real-world constraint handling** using **PHP and MySQL**, with a lightweight frontend for interaction.
+The **Smart Campus Resource Manager** implements a rule-driven booking system where users do not manually enter time.  
+Instead, the server dynamically generates only valid booking slots using operational constraints:
+
+- resource working hours
+- maximum usage duration
+- cleanup buffer time
+- real-world current time
+- existing confirmed bookings
+
+The system guarantees:
+
+- impossible bookings cannot exist
+- past slots cannot be reserved
+- double booking is structurally prevented
+- expired bookings automatically lose blocking authority
+- availability always reflects real time
+
+This project focuses on **real-world constraint modelling, scheduling logic, and database integrity** using PHP and MySQL with a lightweight frontend.
 
 ---
 
-## Core Requirements
+## System Philosophy
+The system does **not trust user-entered time values**.
 
-### Frontend (HTML / CSS / JavaScript)
-- Forms for booking resources (rooms, labs, equipment).
-- Calendar or list-based view of existing bookings.
-- Client-side validation for missing inputs and basic date/time sanity checks.
-- Optional UI-level conflict warnings (server remains the final source of truth).
+Instead the backend:
 
-### Backend (PHP + MySQL)
-- Database structure:
-  - `users`
-  - `resources`
-  - `bookings`
-- CRUD operations for resources and bookings.
-- Conflict prevention (double booking protection) using:
-  - server-side overlap checking
-  - MySQL transactions for safe, atomic booking operations
-  - indexing/constraints where applicable
+1. Calculates valid slots
+2. Removes expired slots
+3. Removes already booked slots
+4. Presents only feasible options
 
-- Authentication using PHP sessions.
+Booking becomes a **selection problem, not an input problem**.
+
+---
+
+## Core Functional Requirements
+
+### Resource Management (Admin)
+- Create resources
+- Update resource parameters
+- Activate / deactivate resources
+- Delete resources
+- View resources by category or globally
+
+Each resource defines its own operational rules:
+
+- opening time
+- closing time
+- maximum booking duration
+- automatic cleanup buffer
+
+---
+
+### Booking System
+- Weekday-based booking (Monday–Friday)
+- Automatic slot generation from resource timing rules
+- Only future real-time slots selectable
+- First-come-first-serve confirmation
+- Overlap prevention at query level
+- Unique booking code generation
+- Optional notes / purpose
+
+---
+
+### Booking Lifecycle
+
+| State     | Meaning |
+|----------|------|
+| Active   | Slot exists in the future |
+| Expired  | Slot time has passed |
+| Cancelled| User/admin revoked booking |
+
+Expired bookings remain stored but no longer block availability.
+
+---
+
+### Authentication
+- Admin login session
+- User verification before booking
+- Session-based identity tracking
+- Role-restricted actions
 
 ---
 
 ## Data Integrity & Architecture
-- Use prepared statements for all database queries.
-- Use MySQL transactions to ensure atomic booking operations.
-- Modular PHP structure (separate DB connection, auth, and booking logic).
+- Prepared statements for all database queries
+- Overlap detection queries
+- Real-time availability filtering
+- Foreign key relationships between users, resources, bookings
+- Modular PHP structure (config, auth, logic separation)
 
 ---
 
 ## Security Constraints
-- Input sanitization and output escaping.
-- Access control for booking and administrative actions.
+- Input validation
+- Output escaping
+- Session-based authorization
+- Server-side time enforcement (client cannot fake time)
 
 ---
 
 ## Deliverables
-- `index.html` — booking interface
-- `style.css` — responsive layout
-- `booking.js` — validation and calendar/list rendering
-- `db.sql` — schema for users, resources, bookings
-- `auth.php`, `booking.php` — backend logic
-
-    
+- Admin console for governance
+- Slot-based booking interface
+- Booking search & filtering
+- Database schema (`users`, `resources`, `bookings`)
+- Modular PHP backend
