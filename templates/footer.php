@@ -1,3 +1,5 @@
-<footer>
-	@ Zatch Winston - Secure Feedback & Analysis Portal
-</footer>
+		<footer> 
+			@ 2026 Smart Campus Resource Manager
+		</footer>
+	</body>
+</html>
